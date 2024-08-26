@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_6e74c3216494354e85962e3cf97284db {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_6e74c3216494354e85962e3cf97284db" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_6e74c3216494354e85962e3cf97284db = L.map(
+                "map_6e74c3216494354e85962e3cf97284db",
+                {
+                    center: [-6.155, 106.835],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 15,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_13215ecfc908d56a0aa98d0cab5a339f = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+        
+    
+            tile_layer_13215ecfc908d56a0aa98d0cab5a339f.addTo(map_6e74c3216494354e85962e3cf97284db);
+        
+    
+            var marker_e522c482bab5aa654f818a2c2b8841c3 = L.marker(
+                [-6.150479000000001, 106.83822450032534],
+                {}
+            ).addTo(map_6e74c3216494354e85962e3cf97284db);
+        
+    
+        var popup_c79aedc81d87c250c6fdc867b5ff4477 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_93e991f62266e74182ff9106f42d3da0 = $(`<div id="html_93e991f62266e74182ff9106f42d3da0" style="width: 100.0%; height: 100.0%;">Jalan Gunung Sahari Utara</div>`)[0];
+                popup_c79aedc81d87c250c6fdc867b5ff4477.setContent(html_93e991f62266e74182ff9106f42d3da0);
+            
+        
+
+        marker_e522c482bab5aa654f818a2c2b8841c3.bindPopup(popup_c79aedc81d87c250c6fdc867b5ff4477)
+        ;
+
+        
+    
+    
+            var marker_5acf1a136aeb6c305a9d4fc5aa32d3b3 = L.marker(
+                [-6.1606672, 106.8276549],
+                {}
+            ).addTo(map_6e74c3216494354e85962e3cf97284db);
+        
+    
+        var popup_e00b60c3647e1917358b4c44788a79ed = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_78a438235df11d8b19723b08886b94ff = $(`<div id="html_78a438235df11d8b19723b08886b94ff" style="width: 100.0%; height: 100.0%;">Jalan Sawah Besar</div>`)[0];
+                popup_e00b60c3647e1917358b4c44788a79ed.setContent(html_78a438235df11d8b19723b08886b94ff);
+            
+        
+
+        marker_5acf1a136aeb6c305a9d4fc5aa32d3b3.bindPopup(popup_e00b60c3647e1917358b4c44788a79ed)
+        ;
+
+        
+    
+    
+            var marker_9b17c76cc1a77ebd2d35859f18a28b28 = L.marker(
+                [-6.150479000000001, 106.83822450032534],
+                {}
+            ).addTo(map_6e74c3216494354e85962e3cf97284db);
+        
+    
+        var popup_6ba12676573c541f9f45753504d950c0 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_d021d40ffc7ad0a907b025608c2d2b3d = $(`<div id="html_d021d40ffc7ad0a907b025608c2d2b3d" style="width: 100.0%; height: 100.0%;">Jalan Gunung Sahari Utara</div>`)[0];
+                popup_6ba12676573c541f9f45753504d950c0.setContent(html_d021d40ffc7ad0a907b025608c2d2b3d);
+            
+        
+
+        marker_9b17c76cc1a77ebd2d35859f18a28b28.bindPopup(popup_6ba12676573c541f9f45753504d950c0)
+        ;
+
+        
+    
+    
+            var marker_958f8269d1367b920f29af932a223eee = L.marker(
+                [-6.1606672, 106.8276549],
+                {}
+            ).addTo(map_6e74c3216494354e85962e3cf97284db);
+        
+    
+        var popup_6cbecb6b1b9f381c416ced6d5661e48f = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_227d4c40fdc075dfb54bbdddc8fd0878 = $(`<div id="html_227d4c40fdc075dfb54bbdddc8fd0878" style="width: 100.0%; height: 100.0%;">Jalan Sawah Besar</div>`)[0];
+                popup_6cbecb6b1b9f381c416ced6d5661e48f.setContent(html_227d4c40fdc075dfb54bbdddc8fd0878);
+            
+        
+
+        marker_958f8269d1367b920f29af932a223eee.bindPopup(popup_6cbecb6b1b9f381c416ced6d5661e48f)
+        ;
+
+        
+    
+    
+            var marker_5e7164f2bcbc229b905ba9eadd081386 = L.marker(
+                [-6.2129301, 106.7722514],
+                {}
+            ).addTo(map_6e74c3216494354e85962e3cf97284db);
+        
+    
+        var popup_6647891d64c09660d3a03f673212d4ea = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_c110e5fa62d88500fcf27e91e57bb876 = $(`<div id="html_c110e5fa62d88500fcf27e91e57bb876" style="width: 100.0%; height: 100.0%;">Jalan Pos Pengumben</div>`)[0];
+                popup_6647891d64c09660d3a03f673212d4ea.setContent(html_c110e5fa62d88500fcf27e91e57bb876);
+            
+        
+
+        marker_5e7164f2bcbc229b905ba9eadd081386.bindPopup(popup_6647891d64c09660d3a03f673212d4ea)
+        ;
+
+        
+    
+    
+            var marker_6ca36248ef153cb44a32829c0dbfb96b = L.marker(
+                [-6.150479000000001, 106.83822450032534],
+                {}
+            ).addTo(map_6e74c3216494354e85962e3cf97284db);
+        
+    
+        var popup_da9676d4eb0ed546ad55ad69c63a8f66 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_46bb7e65d93378017a7a904da8ece7c9 = $(`<div id="html_46bb7e65d93378017a7a904da8ece7c9" style="width: 100.0%; height: 100.0%;">Jalan Gunung Sahari Utara</div>`)[0];
+                popup_da9676d4eb0ed546ad55ad69c63a8f66.setContent(html_46bb7e65d93378017a7a904da8ece7c9);
+            
+        
+
+        marker_6ca36248ef153cb44a32829c0dbfb96b.bindPopup(popup_da9676d4eb0ed546ad55ad69c63a8f66)
+        ;
+
+        
+    
+    
+            var marker_dfae3b79ab6f7ad59b15a3c276919190 = L.marker(
+                [-6.1606672, 106.8276549],
+                {}
+            ).addTo(map_6e74c3216494354e85962e3cf97284db);
+        
+    
+        var popup_f1a92a1d86f612bef9c68b666abdfdac = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_977064176ea992ff2883f1f7cf7495be = $(`<div id="html_977064176ea992ff2883f1f7cf7495be" style="width: 100.0%; height: 100.0%;">Jalan Sawah Besar</div>`)[0];
+                popup_f1a92a1d86f612bef9c68b666abdfdac.setContent(html_977064176ea992ff2883f1f7cf7495be);
+            
+        
+
+        marker_dfae3b79ab6f7ad59b15a3c276919190.bindPopup(popup_f1a92a1d86f612bef9c68b666abdfdac)
+        ;
+
+        
+    
+    
+            var marker_fe2959e87a3aaa70f234f48605215039 = L.marker(
+                [-6.1937143, 106.8565925],
+                {}
+            ).addTo(map_6e74c3216494354e85962e3cf97284db);
+        
+    
+        var popup_c7e503a1e63ebc5bd7e6d63961f98b82 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_75eac5d435fb95f513821eca5632cfc8 = $(`<div id="html_75eac5d435fb95f513821eca5632cfc8" style="width: 100.0%; height: 100.0%;">Jalan Kramat</div>`)[0];
+                popup_c7e503a1e63ebc5bd7e6d63961f98b82.setContent(html_75eac5d435fb95f513821eca5632cfc8);
+            
+        
+
+        marker_fe2959e87a3aaa70f234f48605215039.bindPopup(popup_c7e503a1e63ebc5bd7e6d63961f98b82)
+        ;
+
+        
+    
+</script>
+</html>

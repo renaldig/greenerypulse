@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreeneryPulse Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Welcome to GreeneryPulse</h1>
+    </header>
+
+    <!-- Settings gear icon -->
+    <div id="settings">
+        <img src="https://img.icons8.com/ios-glyphs/30/000000/settings.png" alt="Settings" onclick="toggleSettingsPopup()">
+    </div>
+
+    <!-- Settings popup -->
+    <div class="settings-popup" id="settings-popup">
+        <h3>Configuration</h3>
+        <label for="s3-bucket">S3 Bucket:</label>
+        <input type="text" id="s3-bucket" placeholder="Enter S3 bucket name">
+        <label for="s3-folder">S3 Folder:</label>
+        <input type="text" id="s3-folder" placeholder="Enter S3 folder path">
+        <button onclick="saveSettings()">Save</button>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Urban Planning Simulator Prompt Box -->
+        <section class="prompt-box">
+            <h2>Urban Planning Simulator</h2>
+            <textarea id="urban-planning-prompt" rows="4" placeholder="Enter your urban planning prompt here..."></textarea>
+            <button class="button" onclick="simulateUrbanPlanning()">Simulate</button>
+        </section>
+        
+        <!-- Simulation Results -->
+        <section class="simulation-results">
+            <div class="simulation-response">
+                <h3>Simulation Results:</h3>
+                <div id="simulation-output"></div>
+            </div>
+            <div class="simulation-heatmap">
+                <h3>Heatmap:</h3>
+                <img id="heatmap-img" src="" alt="Heatmap" style="display: none;"> <!-- Initially hidden -->
+            </div>
+        </section>
+
+        <!-- Traffic Analysis Section -->
+        <section class="traffic-analysis-wrapper">
+            <div class="traffic-container">
+                <div class="traffic-suggestions">
+                    <h2>Traffic Analysis Suggestions</h2>
+                    <textarea id="traffic-output" rows="10" placeholder="Traffic suggestions will appear here..." readonly></textarea>
+                </div>
+                <div class="traffic-map" id="traffic-map-section" style="display: none;"> <!-- Initially hidden -->
+                    <h3>Traffic Optimization Map:</h3>
+                    <iframe id="traffic-map-iframe" src="" frameborder="0"></iframe>
+                </div>
+            </div>
+            <button class="button" onclick="analyzeTraffic()">Analyze Traffic</button>
+        </section>
+
+        <!-- Dashboards -->
+        <section class="dashboard-wrapper">
+            <!-- Normal Dashboard -->
+            <div class="dashboard-container">
+                <div class="slider-container">
+                    <label for="normal-time-frame-slider">Normal Dashboard Time Frame:</label>
+                    <input type="range" min="0" max="5" value="2" class="slider" id="normal-time-frame-slider" oninput="updateNormalTimeFrameLabel()">
+                    <span id="normal-time-frame-label">1 day</span>
+                    <button class="update-button" onclick="updateNormalDashboard()">Update Dashboard</button>
+                </div>
+                <img id="dashboard-img" src="{{ url_for('static', filename='images/dashboard.png') }}" alt="Dashboard" class="full-dashboard">
+            </div>
+
+            <!-- Predictive Dashboard -->
+            <div class="dashboard-container">
+                <div class="slider-container">
+                    <label for="predictive-time-frame-slider">Predictive Dashboard Time Frame:</label>
+                    <input type="range" min="0" max="5" value="2" class="slider" id="predictive-time-frame-slider" oninput="updatePredictiveTimeFrameLabel()">
+                    <span id="predictive-time-frame-label">1 day</span>
+                    <button class="update-button" onclick="updatePredictiveDashboard()">Update Predictive Dashboard</button>
+                </div>
+                <img id="predictive-dashboard-img" src="{{ url_for('static', filename='images/predictive_dashboard.png') }}" alt="Predictive Dashboard" class="full-dashboard">
+            </div>
+        </section>
+
+        <!-- Insights Section -->
+        <section class="insights-wrapper">
+            <h2>Generate Energy Insights</h2>
+            <button class="button" onclick="generateInsights()">Generate Insights</button>
+            <textarea id="insights-output" rows="6" placeholder="Insights will appear here..." readonly></textarea>
+        </section>
+    </main>
+
+    <!-- Chat bubble and window -->
+    <div class="chat-bubble" onclick="toggleChatWindow()">💬</div>
+    <div class="chat-window" id="chat-window">
+        <div class="chat-header">Chat</div>
+        <div class="chat-messages" id="chat-messages">
+            <div>Welcome to GreeneryPulse! How can I help you today?</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Type a message...">
+            <button onclick="sendChatMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- Include Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            socket.on('connect', function() {
+                console.log('Connected to server');
+                socket.emit('request_update');
+            });
+
+            socket.on('update_dashboard', function() {
+                console.log('Updating dashboard...');
+                var img = document.getElementById('dashboard-img');
+                img.src = "{{ url_for('static', filename='images/dashboard.png') }}" + "?" + new Date().getTime();
+                var predictiveImg = document.getElementById('predictive-dashboard-img');
+                predictiveImg.src = "{{ url_for('static', filename='images/predictive_dashboard.png') }}" + "?" + new Date().getTime();
+            });
+
+            window.updateNormalTimeFrameLabel = function() {
+                const slider = document.getElementById('normal-time-frame-slider');
+                const label = document.getElementById('normal-time-frame-label');
+                const timeFrames = ['30 minutes', '1 hour', '1 day', '1 week', '1 month', '1 year'];
+                label.textContent = timeFrames[slider.value];
+            };
+
+            window.updatePredictiveTimeFrameLabel = function() {
+                const slider = document.getElementById('predictive-time-frame-slider');
+                const label = document.getElementById('predictive-time-frame-label');
+                const timeFrames = ['30 minutes', '1 hour', '1 day', '1 week', '1 month', '1 year'];
+                label.textContent = timeFrames[slider.value];
+            };
+
+            window.updateNormalDashboard = function() {
+                const timeFrame = ['30min', '1h', '1d', '1w', '1m', '1y'][document.getElementById('normal-time-frame-slider').value];
+                socket.emit('update_time_frame', { time_frame: timeFrame, type: 'normal' });
+            };
+
+            window.updatePredictiveDashboard = function() {
+                const timeFrame = ['30min', '1h', '1d', '1w', '1m', '1y'][document.getElementById('predictive-time-frame-slider').value];
+                socket.emit('update_time_frame', { time_frame: timeFrame, type: 'predictive' });
+            };
+
+            window.toggleChatWindow = function() {
+                const chatWindow = document.getElementById('chat-window');
+                chatWindow.style.display = chatWindow.style.display === 'none' ? 'flex' : 'none';
+            };
+
+            window.sendChatMessage = function() {
+                const input = document.getElementById('chat-input');
+                const messages = document.getElementById('chat-messages');
+                const userMessage = input.value.trim();
+                
+                if (userMessage) {
+                    // Display user's message
+                    const userMessageDiv = document.createElement('div');
+                    userMessageDiv.textContent = "You: " + userMessage;
+                    messages.appendChild(userMessageDiv);
+
+                    // Send the message to the server
+                    fetch('/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: userMessage })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const botMessageDiv = document.createElement('div');
+                        botMessageDiv.textContent = "Bot: " + data.response;
+                        messages.appendChild(botMessageDiv);
+                    });
+
+                    // Clear input field
+                    input.value = '';
+                }
+            };
+
+            window.simulateUrbanPlanning = function() {
+                const prompt = document.getElementById('urban-planning-prompt').value;
+                const bucket = localStorage.getItem('s3-bucket') || 'greenerypulseplanning';
+                const folder = localStorage.getItem('s3-folder') || '';
+
+                fetch('/simulate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt, bucket: bucket, folder: folder })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Simulation Result:", data.result);
+                    console.log("Image Analysis Results:", data.image_analysis);
+
+                    // Display the simulation result text with HTML rendering
+                    const outputDiv = document.getElementById('simulation-output');
+                    outputDiv.innerHTML = data.result;  // Use innerHTML to render HTML tags properly
+
+                    // After displaying the text, show the heatmap image
+                    const heatmapDiv = document.querySelector('.simulation-heatmap');
+                    heatmapDiv.style.display = 'block';  // Make the heatmap section visible
+                    
+                    // Update the heatmap image source to ensure it's the latest one
+                    const heatmapImg = document.getElementById('heatmap-img');
+                    heatmapImg.src = "{{ url_for('static', filename='images/urban_heatmap.png') }}" + "?" + new Date().getTime();
+                    heatmapImg.style.display = 'block'; // Show the heatmap image
+                });
+            };
+
+            // Function to generate insights based on environmental data
+            window.generateInsights = function() {
+                fetch('/generate-insights', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Generated Insights:", data.insights);
+
+                    // Display the generated insights in the text area
+                    const insightsOutput = document.getElementById('insights-output');
+                    insightsOutput.value = data.insights;
+                })
+                .catch(error => {
+                    console.error("Error generating insights:", error);
+                });
+            };
+
+            window.analyzeTraffic = function() {
+                const bucket = localStorage.getItem('s3-bucket') || 'greenerypulseplanning';
+                const folder = localStorage.getItem('s3-folder') || '';
+                fetch('/traffic-analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bucket: bucket, folder: folder })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        console.error("Error from server:", data.error);
+                        alert("An error occurred: " + data.error);
+                        return;
+                    }
+
+                    console.log("Traffic Analysis Result:", data.result);
+
+                    // Display the traffic suggestions in the text area
+                    const trafficOutput = document.getElementById('traffic-output');
+                    trafficOutput.value = data.result;
+
+                    // Show the traffic optimization map section
+                    const trafficMapSection = document.getElementById('traffic-map-section');
+                    trafficMapSection.style.display = 'block';  // Make the traffic map section visible
+
+                    // Update the traffic map iframe source to ensure it's the latest one
+                    const trafficMapIframe = document.getElementById('traffic-map-iframe');
+                    trafficMapIframe.src = data.map_path + "?" + new Date().getTime();  // Use the returned HTML map path
+
+                    // Debugging: Check the iframe source
+                    console.log("Updated traffic map source:", trafficMapIframe.src);
+                })
+                .catch(error => {
+                    console.error("Error analyzing traffic:", error);
+                    alert("Failed to analyze traffic. Please try again later.");
+                });
+            };
+
+            window.toggleSettingsPopup = function() {
+                const popup = document.getElementById('settings-popup');
+                popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+            };
+
+            window.saveSettings = function() {
+                const bucket = document.getElementById('s3-bucket').value.trim();
+                const folder = document.getElementById('s3-folder').value.trim();
+                
+                if (bucket && folder) {
+                    localStorage.setItem('s3-bucket', bucket);
+                    localStorage.setItem('s3-folder', folder);
+                    alert('Settings saved successfully!');
+                    toggleSettingsPopup();
+                } else {
+                    alert('Please enter both bucket and folder.');
+                }
+            };
+        });
+    </script>
+</body>
+</html>

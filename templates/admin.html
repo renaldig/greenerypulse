@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Configuration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Admin Configuration</h1>
+    <form id="config-form">
+        <label for="green-space">Green Space Optimization Parameters:</label>
+        <input type="text" id="green-space" name="green-space" required>
+        <label for="energy-efficiency">Energy Efficiency Parameters:</label>
+        <input type="text" id="energy-efficiency" name="energy-efficiency" required>
+        <label for="transportation">Sustainable Transportation Parameters:</label>
+        <input type="text" id="transportation" name="transportation" required>
+        <button type="submit">Save Configuration</button>
+    </form>
+    <div id="config-result"></div>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+
+    <script>
+        document.getElementById('config-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const greenSpace = document.getElementById('green-space').value;
+            const energyEfficiency = document.getElementById('energy-efficiency').value;
+            const transportation = document.getElementById('transportation').value;
+
+            fetch('/save-config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ greenSpace, energyEfficiency, transportation })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('config-result').innerText = data.message;
+            });
+        });
+    </script>
+</body>
+</html>
