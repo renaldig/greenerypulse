@@ -101,7 +101,8 @@ def chat():
 
     # You should have the necessary logic to handle the user message here
     # For example, you could send the message to your Lex bot
-    bot_response = send_to_lex_bot(bot_id=os.getenv('bot_id'), bot_alias_id=os.getenv('bot_alias'), locale_id='en_US', user_id='greenerypulsebot', text=user_message)
+    bot_response = send_to_lex_bot(bot_id='71ASQMBZEV', bot_alias_id='VDVO869T1C', locale_id='en_US', user_id='greenerypulsebot', text=user_message)
+    #bot_response = send_to_lex_bot(bot_id=os.getenv('bot_id'), bot_alias_id=os.getenv('bot_alias'), locale_id='en_US', user_id='greenerypulsebot', text=user_message)
     
     # Return the bot response to the client
     return jsonify(response=bot_response)
