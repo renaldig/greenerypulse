@@ -97,7 +97,6 @@
         </section>
     </main>
 
-    <!-- Chat bubble and window -->
     <div class="chat-bubble" onclick="toggleChatWindow()">💬</div>
     <div class="chat-window" id="chat-window">
         <div class="chat-header">Chat</div>
@@ -110,7 +109,6 @@
         </div>
     </div>
 
-    <!-- Include Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -163,12 +161,10 @@
                 const userMessage = input.value.trim();
                 
                 if (userMessage) {
-                    // Display user's message
                     const userMessageDiv = document.createElement('div');
                     userMessageDiv.textContent = "You: " + userMessage;
                     messages.appendChild(userMessageDiv);
 
-                    // Send the message to the server
                     fetch('/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -181,7 +177,6 @@
                         messages.appendChild(botMessageDiv);
                     });
 
-                    // Clear input field
                     input.value = '';
                 }
             };
@@ -201,18 +196,15 @@
                     console.log("Simulation Result:", data.result);
                     console.log("Image Analysis Results:", data.image_analysis);
 
-                    // Display the simulation result text with HTML rendering
                     const outputDiv = document.getElementById('simulation-output');
-                    outputDiv.innerHTML = data.result;  // Use innerHTML to render HTML tags properly
+                    outputDiv.innerHTML = data.result;
 
-                    // After displaying the text, show the heatmap image
                     const heatmapDiv = document.querySelector('.simulation-heatmap');
-                    heatmapDiv.style.display = 'block';  // Make the heatmap section visible
+                    heatmapDiv.style.display = 'block';
                     
-                    // Update the heatmap image source to ensure it's the latest one
                     const heatmapImg = document.getElementById('heatmap-img');
                     heatmapImg.src = "{{ url_for('static', filename='images/urban_heatmap.png') }}" + "?" + new Date().getTime();
-                    heatmapImg.style.display = 'block'; // Show the heatmap image
+                    heatmapImg.style.display = 'block';
                 });
             };
 
@@ -227,7 +219,6 @@
                 .then(data => {
                     console.log("Generated Insights:", data.insights);
 
-                    // Display the generated insights in the text area
                     const insightsOutput = document.getElementById('insights-output');
                     insightsOutput.value = data.insights;
                 })
@@ -259,19 +250,15 @@
 
                     console.log("Traffic Analysis Result:", data.result);
 
-                    // Display the traffic suggestions in the text area
                     const trafficOutput = document.getElementById('traffic-output');
                     trafficOutput.value = data.result;
 
-                    // Show the traffic optimization map section
                     const trafficMapSection = document.getElementById('traffic-map-section');
-                    trafficMapSection.style.display = 'block';  // Make the traffic map section visible
+                    trafficMapSection.style.display = 'block';
 
-                    // Update the traffic map iframe source to ensure it's the latest one
                     const trafficMapIframe = document.getElementById('traffic-map-iframe');
-                    trafficMapIframe.src = data.map_path + "?" + new Date().getTime();  // Use the returned HTML map path
+                    trafficMapIframe.src = data.map_path + "?" + new Date().getTime();
 
-                    // Debugging: Check the iframe source
                     console.log("Updated traffic map source:", trafficMapIframe.src);
                 })
                 .catch(error => {

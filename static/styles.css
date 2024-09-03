@@ -1,4 +1,3 @@
-/* Global Styles */
 body {
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
@@ -18,7 +17,6 @@ p, label, textarea, input, button {
     font-size: 16px;
 }
 
-/* Buttons */
 .button, .update-button, .chat-input button, .settings-popup button {
     padding: 12px 24px;
     background-color: #0078D4;
@@ -28,7 +26,7 @@ p, label, textarea, input, button {
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s;
-    margin-top: 10px; /* Added margin for spacing */
+    margin-top: 10px;
     margin-bottom: 10px
 }
 
@@ -36,7 +34,6 @@ p, label, textarea, input, button {
     background-color: #005A9E;
 }
 
-/* Input Fields */
 textarea, input[type="text"] {
     width: 100%;
     padding: 10px;
@@ -53,7 +50,6 @@ textarea:focus, input[type="text"]:focus {
     border-color: #0078D4;
 }
 
-/* Containers */
 .prompt-box, .simulation-results, .traffic-analysis-wrapper, .insights-wrapper, .chat-window, .settings-popup {
     margin: 20px auto;
     width: 90%;
@@ -64,13 +60,11 @@ textarea:focus, input[type="text"]:focus {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Headers */
 header {
     text-align: center;
     margin-top: 20px;
 }
 
-/* Simulation Results and Heatmap */
 .simulation-results {
     display: flex;
     justify-content: space-between;
@@ -80,12 +74,11 @@ header {
 
 .simulation-heatmap img {
     width: 100%;
-    max-width: 400px; /* Constrain the size */
+    max-width: 400px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Traffic Analysis and Map */
 .traffic-container {
     display: flex;
     justify-content: space-between;
@@ -94,7 +87,7 @@ header {
 }
 
 .traffic-map {
-    width: 48%; /* Constrain map width */
+    width: 48%;
 }
 
 .traffic-map iframe {
@@ -106,16 +99,15 @@ header {
 }
 
 .traffic-suggestions {
-    width: 48%; /* Constrain suggestions width */
+    width: 48%;
 }
 
-/* Dashboard Styles */
 .dashboard-wrapper {
     display: flex;
     justify-content: space-between;
     gap: 20px;
     margin-bottom: 20px;
-    flex-wrap: wrap; /* Allow wrapping for responsiveness */
+    flex-wrap: wrap;
 }
 
 .dashboard-container {
@@ -136,7 +128,6 @@ header {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Slider and Label */
 .slider-container {
     display: flex;
     align-items: center;
@@ -179,7 +170,6 @@ header {
     background: #005A9E;
 }
 
-/* Chat Bubble and Window */
 .chat-bubble {
     position: fixed;
     bottom: 20px;
@@ -261,7 +251,6 @@ header {
     background-color: #005A9E;
 }
 
-/* Settings Icon and Popup */
 #settings {
     position: fixed;
     top: 20px;
@@ -297,7 +286,6 @@ header {
     outline: none;
 }
 
-/* Link Styles */
 a {
     display: inline-block;
     margin-top: 20px;
@@ -309,7 +297,6 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .dashboard-wrapper, .simulation-results, .traffic-container {
         flex-direction: column;

@@ -28,13 +28,11 @@
                 img.src = "{{ url_for('static', filename='images/dashboard.png') }}" + "?" + new Date().getTime();
             });
     
-            // Adding interactivity for detailed data display
             var img = document.getElementById('dashboard-img');
             img.addEventListener('click', function() {
                 fetch('/get-detailed-data')
                 .then(response => response.json())
                 .then(data => {
-                    // Display detailed data in a modal or new section
                     console.log(data);
                     alert(JSON.stringify(data, null, 2));
                 });
