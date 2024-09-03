@@ -23,10 +23,8 @@ from PIL import Image, ImageDraw
 import io
 import folium
 
-# Set Matplotlib backend to Agg
 matplotlib.use('Agg')
 
-# Initialize the Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
@@ -38,17 +36,14 @@ session = boto3.Session(
     region_name='us-west-2'
 )
 
-# Initialize AWS clients
 lex_client = session.client('lexv2-runtime', region_name='us-west-2')
 bedrock_client = session.client('bedrock-runtime', region_name='us-west-2')
 rekognition_client = session.client('rekognition')
 iot_client = session.client('iot-data', region_name='us-west-2')
 dynamodb_client = session.client('dynamodb', region_name='us-west-2')
 
-# In-memory storage for IoT data
 iot_data = []
 
-# Function to interact with Lex bot
 def send_to_lex_bot(bot_id, bot_alias_id, locale_id, user_id, text):
     response = lex_client.recognize_text(
         botId=bot_id,
@@ -60,7 +55,6 @@ def send_to_lex_bot(bot_id, bot_alias_id, locale_id, user_id, text):
 
     print("Lex Response:", response)
 
-    # Check for interpretations first
     if 'interpretations' in response and response['interpretations']:
         print("Hello")
         for interpretation in response['interpretations']:
@@ -69,14 +63,11 @@ def send_to_lex_bot(bot_id, bot_alias_id, locale_id, user_id, text):
                 slots = interpretation['intent'].get('slots', {})
                 feedback_slot = slots.get('FeedbackText')
                 
-                # Only proceed if the intent state is 'ReadyForFulfillment'
                 if intent_state == 'ReadyForFulfillment' and feedback_slot and feedback_slot.get('value'):
                     feedback_text = feedback_slot['value'].get('interpretedValue')
                     print(f"The feedback is {feedback_text}")
                     if feedback_text:
-                        # Insert feedback into DynamoDB
                         insert_feedback_to_dynamodb(feedback_text)
-                        # Return success message
                         return "Thank you for your feedback!"
                 elif feedback_slot is None or feedback_slot.get('value') is None:
                     return "Please provide your feedback."
@@ -85,7 +76,6 @@ def send_to_lex_bot(bot_id, bot_alias_id, locale_id, user_id, text):
             elif 'intent' in interpretation and interpretation['intent']['name'] == 'FallbackIntent':
                 return handle_fallback(text)
 
-    # Only check for messages if no relevant intent found
     if 'messages' in response and response['messages']:
         print("Hola")
         return response['messages'][0]['content']
@@ -95,33 +85,24 @@ def send_to_lex_bot(bot_id, bot_alias_id, locale_id, user_id, text):
     
 @app.route('/chat', methods=['POST'])
 def chat():
-    # Get the message sent by the user
     data = request.json
     user_message = data.get('text', '')
-
-    # You should have the necessary logic to handle the user message here
-    # For example, you could send the message to your Lex bot
     bot_response = send_to_lex_bot(bot_id=os.getenv('bot_id'), bot_alias_id=os.getenv('bot_alias'), locale_id='en_US', user_id='greenerypulsebot', text=user_message)
     
-    # Return the bot response to the client
     return jsonify(response=bot_response)
     
 def insert_feedback_to_dynamodb(feedback_text):
-    # Generate a unique numeric ID
-    feedback_id = random.randint(1, 1000000)  # Ensure this range fits within your ID requirements
-    
-    # Current timestamp
+    feedback_id = random.randint(1, 1000000)
     timestamp = int(time.time())
     
     print(f"Attempting to insert feedback into DynamoDB: FeedbackText={feedback_text}, FeedbackId={feedback_id}, Timestamp={timestamp}")
     
-    # Insert the item into the DynamoDB table
     try:
         response = dynamodb_client.put_item(
             TableName='GreeneryPulseFeedbackTable',
             Item={
-                'id': {'N': str(feedback_id)},  # Convert feedback_id to string
-                'Timestamp': {'N': str(timestamp)},  # Convert timestamp to string
+                'id': {'N': str(feedback_id)},
+                'Timestamp': {'N': str(timestamp)},
                 'FeedbackText': {'S': feedback_text}
             }
         )
@@ -132,7 +113,6 @@ def insert_feedback_to_dynamodb(feedback_text):
 def handle_fallback(user_text):
     """Handle fallback by calling Bedrock and returning a response."""
     try:
-        # Call Bedrock with the fallback message
         prompt = user_text + "Answer in the context of an urban planner assistant."
         result = invoke_claude_model(prompt)
         return result
@@ -140,11 +120,10 @@ def handle_fallback(user_text):
         print("Error in fallback:", e)
         return "I'm having trouble understanding. Can you please rephrase?"
 
-# Function to invoke Claude model for urban planning simulation
 def invoke_claude_model(prompt, image_data=None):
     payload = {
         "max_tokens": 1024,
-        "system": "You are an urban planning assistant. Act like it and respond based on the prompt provided.",  # Replace with relevant system prompt
+        "system": "You are an urban planning assistant. Act like it and respond based on the prompt provided.",
         "messages": [
             {
                 "role": "user",
@@ -188,7 +167,6 @@ def invoke_claude_model(prompt, image_data=None):
             response_body = json.loads(raw_response)
             print("Response Body:", response_body)
 
-            # Parse the text content directly from the content field
             if 'content' in response_body:
                 text_content = response_body['content'][0].get('text', '')
                 return text_content
@@ -202,7 +180,6 @@ def invoke_claude_model(prompt, image_data=None):
         raise
 
 
-# Function to analyze images using Rekognition
 def analyze_image_from_s3(bucket, key):
     response = rekognition_client.detect_labels(
         Image={'S3Object': {'Bucket': bucket, 'Name': key}},
@@ -212,11 +189,9 @@ def analyze_image_from_s3(bucket, key):
 
 def create_map_with_traffic_points(locations):
     """Function to create a map with traffic points."""
-    # Define the initial location and zoom level
-    sawah_besar_center = [-6.1550, 106.8350]  # Center of Sawah Besar
+    sawah_besar_center = [-6.1550, 106.8350]
     m = folium.Map(location=sawah_besar_center, zoom_start=15)
 
-    # Add traffic points
     for location in locations:
         geocoded_coords = geocode_location(location)
         if geocoded_coords:
@@ -225,7 +200,6 @@ def create_map_with_traffic_points(locations):
         else:
             print(f"Geocoding failed for {location}")
 
-    # Save the map as an HTML file
     map_file_path = 'static/images/traffic_routes_map.html'
     m.save(map_file_path)
     print(f"Map with traffic points saved as '{map_file_path}'.")
@@ -238,7 +212,6 @@ def lat_lon_to_image_coords(lat, lon, img_width, img_height, bounds):
     x = int((lon - min_lon) / (max_lon - min_lon) * img_width)
     y = int((max_lat - lat) / (max_lat - min_lat) * img_height)
     
-    # Ensure coordinates are within bounds
     x = max(0, min(img_width - 1, x))
     y = max(0, min(img_height - 1, y))
     
@@ -248,20 +221,16 @@ def plot_location_on_map(route_map_data, lat, lon, img_width, img_height, bounds
     x, y = lat_lon_to_image_coords(lat, lon, img_width, img_height, bounds)
     print(f"Plotting location at: ({x}, {y}) with offset: {offset}")
     
-    # Ensure coordinates are within bounds
     if 0 <= x < img_width and 0 <= y < img_height:
-        # Apply offset to avoid overlapping points
         x = min(img_width - 1, max(0, x + offset))
         y = min(img_height - 1, max(0, y + offset))
         
-        # Draw a filled circle instead of a single pixel
-        cv2.circle(route_map_data, (x, y), 5, (255, 0, 0), -1)  # Red color for visibility
+        cv2.circle(route_map_data, (x, y), 5, (255, 0, 0), -1)
     else:
         print(f"Coordinates out of bounds for location: ({x}, {y})")
 
 def geocode_location(location_name):
     """Function to geocode a location using the Nominatim API with caching and rate limiting."""
-    # Check cache first
     if location_name in geocode_cache:
         print(f"Using cached result for {location_name}")
         return geocode_cache[location_name]
@@ -269,7 +238,6 @@ def geocode_location(location_name):
     clean_location_name = location_name.replace("Jalan ", "")
     base_url = "https://nominatim.openstreetmap.org/search"
     
-    # List of queries to try
     queries = [
         f"{clean_location_name}, Jakarta, Indonesia",
         f"{clean_location_name}",
@@ -285,34 +253,33 @@ def geocode_location(location_name):
             "q": query,
             "format": "json",
             "limit": 5,
-            "countrycodes": "ID"  # Restrict results to Indonesia
+            "countrycodes": "ID"
         }
         try:
             response = requests.get(base_url, params=params, headers=headers)
-            print(f"Geocoding query: {query}")  # Debugging statement
-            print(f"Response status code: {response.status_code}")  # Debugging statement
+            print(f"Geocoding query: {query}")
+            print(f"Response status code: {response.status_code}")
             if response.status_code == 200:
                 results = response.json()
-                print(f"Results: {results}")  # Debugging statement
+                print(f"Results: {results}")
                 if results:
                     for result in results:
                         if "Jakarta" in result.get('display_name', ''):
                             lat_lon = (float(result['lat']), float(result['lon']))
-                            geocode_cache[location_name] = lat_lon  # Cache the result
-                            print(f"Found location: {result['display_name']}")  # Debugging statement
+                            geocode_cache[location_name] = lat_lon
+                            print(f"Found location: {result['display_name']}")
                             return lat_lon
             else:
                 print(f"Geocoding failed for location: {query} with status code {response.status_code}")
         except requests.RequestException as e:
             print(f"Request failed: {e}")
 
-        time.sleep(1)  # Ensure we don't exceed the 1 request per second limit
+        time.sleep(1)
 
     print(f"No suitable match found for location: {location_name}")
     return None
 
 def extract_locations(text):
-    # Define a regex pattern to extract streets prefixed with 'Jalan' or 'Jl.'
     street_pattern = re.compile(r'\b[Jj]alan(?:\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)')
     non_location_keywords = [
     "Based", "Here", "This", "To", "Additionally", "Similar", "An", 
@@ -322,14 +289,11 @@ def extract_locations(text):
     "Enhancing", "Public", "Encouraging"
     ]
 
-    # Find all matches
     locations = street_pattern.findall(text)
     
-    # Filter out any unwanted matches
     filtered_locations = []
     for loc in locations:
         clean_loc = loc.strip()
-        # Add additional cleaning logic if needed, for example:
         if clean_loc.lower() not in non_location_keywords:
             filtered_locations.append(clean_loc)
     
@@ -356,7 +320,6 @@ def simulate():
     try:
         s3_response = s3_client.get_object(Bucket=bucket, Key=terrain_image_key)
         
-        # Verify content type
         content_type = s3_response.get('ContentType', '')
         if 'image' not in content_type:
             raise ValueError(f"Expected image content type, but got {content_type}")
@@ -364,7 +327,6 @@ def simulate():
         image_data = s3_response['Body'].read()
         terrain_image = Image.open(io.BytesIO(image_data)).convert("RGBA")
         
-        # Convert image data to base64 for Claude model
         image_base64 = base64.b64encode(image_data).decode('utf-8')
         
     except Exception as e:
@@ -376,8 +338,7 @@ def simulate():
     
     ai_recommendations = invoke_claude_model(prompt, image_base64)
     
-    # Ensure the AI recommendations are formatted for readability
-    formatted_recommendations = ai_recommendations.replace('\n', '<br>')  # Replace newline characters with HTML line breaks
+    formatted_recommendations = ai_recommendations.replace('\n', '<br>')
 
     suggestions = extract_suggestions(ai_recommendations)
 
@@ -397,7 +358,6 @@ def extract_suggestions(ai_recommendations):
             suggestions.append({'location': location, 'action': action})
     return suggestions
 
-# Function to determine action from AI response
 def determine_action(line):
     """Determines the action based on keywords in the AI response line."""
     if "greenery" in line.lower() or "tree" in line.lower() or "vegetation" in line.lower():
@@ -410,65 +370,49 @@ def determine_action(line):
 
 def generate_heatmap_based_on_suggestions(terrain_image, suggestions, bounds):
     """Generate a heatmap image based on AI suggestions."""
-    # Define the color map
     colormap = {
-        'high_traffic': (255, 0, 0, 128),  # Red with transparency
-        'greenery_focus': (0, 255, 0, 128),  # Green with transparency
-        'neutral': (255, 255, 0, 128)  # Yellow with transparency for visibility
+        'high_traffic': (255, 0, 0, 128),
+        'greenery_focus': (0, 255, 0, 128),
+        'neutral': (255, 255, 0, 128)
     }
 
-    # Convert the image to a numpy array
     image_array = np.array(terrain_image)
-
-    # Create a new heatmap layer
     heatmap = Image.new('RGBA', terrain_image.size)
-
-    # Draw on the heatmap based on suggestions
     draw = ImageDraw.Draw(heatmap)
 
-    # Iterate through the suggestions and draw corresponding areas on the heatmap
     for suggestion in suggestions:
         location = suggestion.get('location')
         action = suggestion.get('action')
 
-        # Convert location to image coordinates
         coords = geocode_location(location)
         if coords:
             x, y = lat_lon_to_image_coords(coords[0], coords[1], image_array.shape[1], image_array.shape[0], bounds)
-            color = colormap.get(action, (255, 255, 255, 255))  # Use fully opaque white if action not found
-            # Increase the size of the rectangles (e.g., 20x20 pixels instead of 10x10)
+            color = colormap.get(action, (255, 255, 255, 255))
             draw.rectangle([x-100, y-100, x+100, y+100], fill=color)
-            print(f"Drawing {action} at ({x}, {y}) with color {color} and larger size")  # Debugging statement
+            print(f"Drawing {action} at ({x}, {y}) with color {color} and larger size")
 
-    # Combine the heatmap with the original image
     combined = Image.alpha_composite(terrain_image.convert('RGBA'), heatmap)
-
-    # Save the combined image
     combined.save('static/images/urban_heatmap.png')
     print("Heatmap generated based on suggestions.")
 
 def analyze_map_and_generate_traffic_routes(bucket, traffic_image_key, traffic_recommendations_text):
     s3_client = session.client('s3')
 
-    # Download the traffic density map image from S3 for analysis purposes
     try:
         s3_response = s3_client.get_object(Bucket=bucket, Key=traffic_image_key)
         image_data = s3_response['Body'].read()
-        base_map_image = Image.open(io.BytesIO(image_data)).convert("RGBA")  # Keep for Claude analysis
+        base_map_image = Image.open(io.BytesIO(image_data)).convert("RGBA")
         base_map_array = np.array(base_map_image)
     except Exception as e:
         print(f"Error downloading traffic image: {e}")
         return jsonify({"error": f"Failed to download traffic density image from S3: {e}"}), 500
 
-    # Extract locations from Sonnet's response
     extracted_locations = extract_locations(traffic_recommendations_text)
     print("Extracted Locations:", extracted_locations)
 
-    # Create a Folium map centered on Sawah Besar
     sawah_besar_center = [(-6.1650 + -6.1450) / 2, (106.8200 + 106.8500) / 2]
     folium_map = folium.Map(location=sawah_besar_center, zoom_start=15)
 
-    # Plotting the points directly onto the Folium map
     for location in extracted_locations:
         geocoded_coords = geocode_location(location)
         if geocoded_coords:
@@ -477,17 +421,14 @@ def analyze_map_and_generate_traffic_routes(bucket, traffic_image_key, traffic_r
         else:
             print(f"Geocoding failed for {location}")
 
-    # Save the map as an HTML file
     traffic_map_path = 'static/images/traffic_routes_map.html'
     folium_map.save(traffic_map_path)
     print(f"Traffic Routes Map saved as '{traffic_map_path}'.")
 
-    # Also save as PNG for display
     png_output = 'static/images/traffic_routes_map.png'
     imgkit.from_file(traffic_map_path, png_output)
     print(f"Traffic Routes Map PNG saved as '{png_output}'.")
 
-# Function to receive data from IoT Core and update the dashboard
 @app.route('/receive-iot-data', methods=['POST'])
 def receive_iot_data():
     print("Received request to /receive-iot-data")
@@ -495,14 +436,12 @@ def receive_iot_data():
     print("Body:", request.get_data(as_text=True))
     data = request.json
     if data and "confirmationUrl" in data:
-        # Handle the confirmation request
         print("Confirmation request received:", data)
         return jsonify({"message": "Endpoint confirmed"}), 200
     else:
-        print("Received data:", data)  # Debugging: print received data
+        print("Received data:", data)
         iot_data.append(data)
         
-        # Append new data to the CSV instead of overwriting
         df = pd.DataFrame([data])
         if not os.path.isfile('data/real_time_environmental_data.csv'):
             df.to_csv('data/real_time_environmental_data.csv', index=False)
@@ -514,7 +453,6 @@ def receive_iot_data():
         return jsonify(status="Data received")
 
     
-# Function to perform predictive analysis
 def perform_predictive_analysis(df, feature):
     """Perform predictive analysis and return predictions for future time frames."""
     time_intervals = {'30min': 6, '1h': 12, '1d': 288, '1w': 2016, '1m': 8640}  # Data points needed for predictions
@@ -522,15 +460,12 @@ def perform_predictive_analysis(df, feature):
     
     for key, data_points in time_intervals.items():
         if len(df) >= data_points:
-            # Prepare the data for prediction
             X = np.arange(len(df)).reshape(-1, 1)
             y = df[feature].values
             
-            # Train the linear regression model
             model = LinearRegression()
             model.fit(X, y)
             
-            # Predict future values
             future_X = np.arange(len(df), len(df) + data_points).reshape(-1, 1)
             y_pred = model.predict(future_X)
             
@@ -540,47 +475,38 @@ def perform_predictive_analysis(df, feature):
     
     return predictions
 
-# Route for the main page
 @app.route('/')
 def index():
-    # Directly render the dashboard on the index page
     return render_template('index.html')
 
 @app.route('/traffic-analysis', methods=['POST'])
-@app.route('/traffic-analysis', methods=['POST'])
 def traffic_analysis():
     try:
-        print("Traffic analysis started...")  # Debugging statement
+        print("Traffic analysis started...")
         data = request.json
         prompt = "Provide suggestions on optimizing traffic flow in the given area, considering the current traffic density. Focus on the routes and suggest improvements. Make specific references to the street names you make recommendations for and refer to them by Nominatim naming standard (indonesia)."
-        
-        # Fixed bucket and image key for the traffic density map
         bucket = 'greenerypulseplanning'
         traffic_image_key = 'traffic_density_analysis.png'
 
-        # Step 1: Download the traffic density image from S3 and convert it to base64
         s3_client = session.client('s3')
         try:
             s3_response = s3_client.get_object(Bucket=bucket, Key=traffic_image_key)
             image_data = base64.b64encode(s3_response['Body'].read()).decode('utf-8')
-            print("Image downloaded and encoded.")  # Debugging statement
+            print("Image downloaded and encoded.")
         except Exception as e:
             print(f"Error downloading image: {e}")
             return jsonify({"error": "Failed to download traffic density image from S3"}), 500
 
-        # Step 2: Invoke the Claude model with the prompt and image
         try:
             traffic_recommendations_text = invoke_claude_model(prompt, image_data)
-            print("Claude model invoked.")  # Debugging statement
+            print("Claude model invoked.")
         except Exception as e:
             print(f"Error invoking Claude model: {e}")
             return jsonify({"error": "Failed to invoke Claude model"}), 500
 
-        # Extracted locations from Claude model's response
         extracted_locations = extract_locations(traffic_recommendations_text)
         print(f"Extracted Locations: {extracted_locations}")
 
-        # Step 4: Generate map with traffic points based on AI recommendations
         try:
             map_file_path = create_map_with_traffic_points(extracted_locations)
             print("Traffic routes map generated.")  # Debugging statement
@@ -588,7 +514,6 @@ def traffic_analysis():
             print(f"Error generating traffic routes map: {e}")
             return jsonify({"error": "Failed to generate traffic routes map"}), 500
 
-        # Step 5: Return both Claude model results and the HTML map path
         return jsonify(result=traffic_recommendations_text, map_path="static/images/traffic_routes_map.html")
     
     except Exception as e:
@@ -604,7 +529,6 @@ def generate_dashboard_image(df, time_frame='1d'):
     fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(16, 10))
     fig.subplots_adjust(hspace=0.4, wspace=0.3)
 
-    # Time frame filtering logic
     time_frames = {'30min': 6, '1h': 12, '1d': 288, '1w': 2016, '1m': 8640}
     if time_frame in time_frames:
         df = df.iloc[-time_frames[time_frame]:]
@@ -671,25 +595,20 @@ def generate_predictive_dashboard_image(df):
 @app.route('/generate-insights', methods=['POST'])
 def generate_insights():
     data = request.json
-    # Load the environmental data from the CSV or in-memory storage
     df = pd.read_csv('data/real_time_environmental_data.csv')
     
-    # Generate a summary or description of the current environmental data
     summary = df.describe().to_dict()
 
-    # Construct a prompt for the Sonnet model using the summary of the data
     prompt = (
         "Given the following environmental data summary: \n"
         f"{json.dumps(summary, indent=2)}\n"
         "Please provide insights and recommendations on how to achieve better energy or air quality efficiency."
     )
 
-    # Call the Claude model for insights
     insights = invoke_claude_model(prompt)
 
     return jsonify(insights=insights)
 
-# Real-time updates with WebSockets
 @socketio.on('connect')
 def handle_connect():
     print("Client connected")

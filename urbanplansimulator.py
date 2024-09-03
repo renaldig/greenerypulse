@@ -2,10 +2,8 @@ import boto3
 import json
 import base64
 
-# Initialize the Bedrock Runtime client
 client = boto3.client("bedrock-runtime", region_name="us-west-2")
 
-# Function to invoke the Claude 3 model with detailed urban planning prompts
 def invoke_detailed_claude_model(prompt):
     payload = {
         "anthropic_version": "bedrock-2023-05-31",
@@ -25,7 +23,6 @@ def invoke_detailed_claude_model(prompt):
             contentType="application/json"
         )
 
-        # Ensure response is read correctly
         response_body = json.loads(response['body'].read().decode('utf-8'))
         print("Response Body:", response_body)
 
@@ -39,12 +36,10 @@ def invoke_detailed_claude_model(prompt):
         print(f"Error invoking model: {str(e)}")
         return None
 
-# Example usage
 prompt = "Generate a detailed urban planning simulation considering green spaces, energy efficiency, and transportation for Jakarta."
 simulation_result = invoke_detailed_claude_model(prompt)
 print(simulation_result)
 
-# Function to invoke the Claude 3 model with an image
 def invoke_claude_with_image(image_path, prompt):
     try:
         with open(image_path, "rb") as image_file:
