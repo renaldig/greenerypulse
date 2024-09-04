@@ -3,11 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
-# Set matplotlib to use the 'Agg' backend
 plt.switch_backend('Agg')
 
 def generate_dashboard_image(df, time_frame='1d'):
-    # Adjusting to ensure non-GUI usage
     plt.figure(figsize=(16, 10))
     fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(16, 10))
     fig.subplots_adjust(hspace=0.4, wspace=0.3)
@@ -38,7 +36,7 @@ def generate_dashboard_image(df, time_frame='1d'):
 
     plt.tight_layout()
     plt.savefig('static/images/dashboard.png')
-    plt.close(fig)  # Ensure the figure is closed to free up memory
+    plt.close(fig)
     print("Dashboard image saved.")
 
 def generate_predictive_dashboard_image(df):
@@ -68,7 +66,7 @@ def generate_predictive_dashboard_image(df):
 
     plt.tight_layout()
     plt.savefig('static/images/predictive_dashboard.png')
-    plt.close(fig)  # Ensure the figure is closed to free up memory
+    plt.close(fig)
     print("Predictive Dashboard image saved.")
 
 def perform_predictive_analysis(df, feature):

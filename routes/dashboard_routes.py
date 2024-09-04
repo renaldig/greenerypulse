@@ -4,7 +4,7 @@ import json
 from flask import Blueprint, request, jsonify, render_template
 from services.data_service import generate_dashboard_image, generate_predictive_dashboard_image
 from services.model_service import invoke_claude_model
-from socketio_instance import socketio  # Use the socketio instance from socketio_instance.py
+from socketio_instance import socketio
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -31,7 +31,7 @@ def generate_insights():
 
 @socketio.on('connect')
 def handle_connect():
-    socketio.emit('update_dashboard')  # Ensure proper usage with socketio.emit
+    socketio.emit('update_dashboard')
 
 @socketio.on('update_time_frame')
 def handle_update_time_frame(data):
@@ -44,7 +44,7 @@ def handle_update_time_frame(data):
             generate_dashboard_image(df, time_frame)
         elif dashboard_type == 'predictive':
             generate_predictive_dashboard_image(df)
-        socketio.emit('update_dashboard')  # Ensure proper usage with socketio.emit
+        socketio.emit('update_dashboard')
     else:
         socketio.emit('error', {'message': 'Data file not found.'})
 
@@ -54,6 +54,6 @@ def handle_request_update():
         df = pd.read_csv('data/real_time_environmental_data.csv')
         generate_dashboard_image(df)
         generate_predictive_dashboard_image(df)
-        socketio.emit('update_dashboard')  # Ensure proper usage with socketio.emit
+        socketio.emit('update_dashboard')
     else:
         socketio.emit('error', {'message': 'Data file not found.'})
