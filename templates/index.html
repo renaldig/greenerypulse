@@ -108,53 +108,60 @@
             <button onclick="sendChatMessage()">Send</button>
         </div>
     </div>
-
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var socket = io.connect('http://' + document.domain + ':' + location.port);
-
+    
             socket.on('connect', function() {
                 console.log('Connected to server');
-                socket.emit('request_update');
+                socket.emit('request_update'); // Request update on initial connection
             });
-
+    
             socket.on('update_dashboard', function() {
                 console.log('Updating dashboard...');
+                updateDashboardImages(); // Update dashboard images
+            });
+    
+            function updateDashboardImages() {
+                // Update the dashboard image
                 var img = document.getElementById('dashboard-img');
                 img.src = "{{ url_for('static', filename='images/dashboard.png') }}" + "?" + new Date().getTime();
+    
+                // Update the predictive dashboard image
                 var predictiveImg = document.getElementById('predictive-dashboard-img');
                 predictiveImg.src = "{{ url_for('static', filename='images/predictive_dashboard.png') }}" + "?" + new Date().getTime();
-            });
-
+            }
+    
             window.updateNormalTimeFrameLabel = function() {
                 const slider = document.getElementById('normal-time-frame-slider');
                 const label = document.getElementById('normal-time-frame-label');
                 const timeFrames = ['30 minutes', '1 hour', '1 day', '1 week', '1 month', '1 year'];
                 label.textContent = timeFrames[slider.value];
             };
-
+    
             window.updatePredictiveTimeFrameLabel = function() {
                 const slider = document.getElementById('predictive-time-frame-slider');
                 const label = document.getElementById('predictive-time-frame-label');
                 const timeFrames = ['30 minutes', '1 hour', '1 day', '1 week', '1 month', '1 year'];
                 label.textContent = timeFrames[slider.value];
             };
-
+    
             window.updateNormalDashboard = function() {
                 const timeFrame = ['30min', '1h', '1d', '1w', '1m', '1y'][document.getElementById('normal-time-frame-slider').value];
                 socket.emit('update_time_frame', { time_frame: timeFrame, type: 'normal' });
             };
-
+    
             window.updatePredictiveDashboard = function() {
                 const timeFrame = ['30min', '1h', '1d', '1w', '1m', '1y'][document.getElementById('predictive-time-frame-slider').value];
                 socket.emit('update_time_frame', { time_frame: timeFrame, type: 'predictive' });
             };
-
+    
             window.toggleChatWindow = function() {
                 const chatWindow = document.getElementById('chat-window');
                 chatWindow.style.display = chatWindow.style.display === 'none' ? 'flex' : 'none';
             };
-
+    
             window.sendChatMessage = function() {
                 const input = document.getElementById('chat-input');
                 const messages = document.getElementById('chat-messages');
@@ -164,7 +171,7 @@
                     const userMessageDiv = document.createElement('div');
                     userMessageDiv.textContent = "You: " + userMessage;
                     messages.appendChild(userMessageDiv);
-
+    
                     fetch('/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -176,16 +183,16 @@
                         botMessageDiv.textContent = "Bot: " + data.response;
                         messages.appendChild(botMessageDiv);
                     });
-
+    
                     input.value = '';
                 }
             };
-
+    
             window.simulateUrbanPlanning = function() {
                 const prompt = document.getElementById('urban-planning-prompt').value;
                 const bucket = localStorage.getItem('s3-bucket') || 'greenerypulseplanning';
                 const folder = localStorage.getItem('s3-folder') || '';
-
+    
                 fetch('/simulate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -195,10 +202,10 @@
                 .then(data => {
                     console.log("Simulation Result:", data.result);
                     console.log("Image Analysis Results:", data.image_analysis);
-
+    
                     const outputDiv = document.getElementById('simulation-output');
                     outputDiv.innerHTML = data.result;
-
+    
                     const heatmapDiv = document.querySelector('.simulation-heatmap');
                     heatmapDiv.style.display = 'block';
                     
@@ -207,8 +214,7 @@
                     heatmapImg.style.display = 'block';
                 });
             };
-
-            // Function to generate insights based on environmental data
+    
             window.generateInsights = function() {
                 fetch('/generate-insights', {
                     method: 'POST',
@@ -218,7 +224,7 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log("Generated Insights:", data.insights);
-
+    
                     const insightsOutput = document.getElementById('insights-output');
                     insightsOutput.value = data.insights;
                 })
@@ -226,7 +232,7 @@
                     console.error("Error generating insights:", error);
                 });
             };
-
+    
             window.analyzeTraffic = function() {
                 const bucket = localStorage.getItem('s3-bucket') || 'greenerypulseplanning';
                 const folder = localStorage.getItem('s3-folder') || '';
@@ -247,18 +253,18 @@
                         alert("An error occurred: " + data.error);
                         return;
                     }
-
+    
                     console.log("Traffic Analysis Result:", data.result);
-
+    
                     const trafficOutput = document.getElementById('traffic-output');
                     trafficOutput.value = data.result;
-
+    
                     const trafficMapSection = document.getElementById('traffic-map-section');
                     trafficMapSection.style.display = 'block';
-
+    
                     const trafficMapIframe = document.getElementById('traffic-map-iframe');
                     trafficMapIframe.src = data.map_path + "?" + new Date().getTime();
-
+    
                     console.log("Updated traffic map source:", trafficMapIframe.src);
                 })
                 .catch(error => {
@@ -266,12 +272,12 @@
                     alert("Failed to analyze traffic. Please try again later.");
                 });
             };
-
+    
             window.toggleSettingsPopup = function() {
                 const popup = document.getElementById('settings-popup');
                 popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
             };
-
+    
             window.saveSettings = function() {
                 const bucket = document.getElementById('s3-bucket').value.trim();
                 const folder = document.getElementById('s3-folder').value.trim();
@@ -287,5 +293,6 @@
             };
         });
     </script>
+    
 </body>
 </html>
