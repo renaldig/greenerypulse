@@ -56,11 +56,26 @@ GreeneryPulse is an open-source project designed to provide real-time environmen
 
 ## Project Structure
 
-- **`main.py`**: The main Flask application file.
+- **`app.py`**: The main entry point for the Flask application, setting up the server and registering blueprints.
+- **`routes/`**: Contains the route handlers for different functionalities.
+  - **`iot_routes.py`**: Handles routes related to IoT data ingestion and processing.
+  - **`dashboard_routes.py`**: Manages routes for rendering dashboards and handling related socket events.
+  - **`simulation_routes.py`**: Contains routes for urban planning simulation and traffic analysis.
+- **`services/`**: Contains service modules that encapsulate business logic.
+  - **`data_service.py`**: Handles data processing, dashboard generation, and predictive analytics.
+  - **`lex_service.py`**: Interacts with AWS Lex for chat functionalities.
+  - **`rekognition_service.py`**: Handles image recognition tasks using AWS Rekognition.
+  - **`model_service.py`**: Interfaces with AI models for generating insights.
+  - **`map_service.py`**: Manages map creation and visualization functionalities.
+- **`utils/`**: Contains utility modules for common helper functions.
+  - **`geo_utils.py`**: Provides geographical data processing utilities.
+  - **`file_utils.py`**: Handles file-related utilities.
+  - **`plot_utils.py`**: Contains utilities for plotting and data visualization.
 - **`static/`**: Contains CSS, JavaScript files, and static images.
 - **`templates/`**: Contains HTML templates for the web pages.
 - **`data/`**: Stores CSV files for environmental data.
 - **`certs/`**: Placeholder for SSL certificates.
+
 
 ## Contributing
 
